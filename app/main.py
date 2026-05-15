@@ -2,9 +2,11 @@
 Main entry point for the Pokemon stream API.
 """
 from fastapi import FastAPI
+from .api.routes import router
 
+app = FastAPI(title="Pokemon Stream API")
+app.include_router(router)
 
-app = FastAPI(title="Guardio Pokemon Stream API")
 
 @app.get("/health")
 def health_check():
