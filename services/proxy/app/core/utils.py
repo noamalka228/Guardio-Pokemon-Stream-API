@@ -12,6 +12,7 @@ from fastapi import HTTPException
 import httpx
 
 from app.core.config import settings
+from app.models.pokemon import Pokemon
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +48,85 @@ def load_rules() -> List[Dict[str, Any]]:
         return data.get("rules", [])
 
 
-def evaluate_rules():
-    pass
+def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
+    """
+    Evaluates a single condition string against a Pokemon object.
+    Supports ==, !=, >=, <=, >, < operators and handles type conversions.
+    """
+    operators = ["==", "!=", ">=", "<=", ">", "<"]
+    op = None
+    for possible_op in operators:
+        if possible_op in condition:
+            op = possible_op
+            break
+
+    if not op:
+        logger.warning(f"No valid operator found in condition: '{condition}'")
+        return False
+
+    parts = condition.split(op, 1)
+    if len(parts) != 2:
+        logger.warning(f"Invalid condition: {condition}")
+        return False
+
+    property_name = parts[0].strip()
+    value_str = parts[1].strip()
+
+    if not hasattr(pokemon, property_name):
+        logger.warning(f"Pokemon object does not have attribute: '{property_name}'")
+        return False
+
+    property_value = getattr(pokemon, property_name)
+
+    try:
+        # Cast the value string to match the protobuf field value type
+        if isinstance(property_value, bool):
+            compare_val = value_str.lower() in ("true", "1")
+        elif isinstance(property_value, (int, float)):
+            compare_val = type(property_value)(value_str)
+        elif isinstance(property_value, str):
+            compare_val = value_str.strip("'\"")
+        else:
+            compare_val = value_str
+
+        # Perform the actual comparison
+        if op == "==":
+            return property_value == compare_val
+        elif op == "!=":
+            return property_value != compare_val
+        elif op == ">":
+            return property_value > compare_val
+        elif op == "<":
+            return property_value < compare_val
+        elif op == ">=":
+            return property_value >= compare_val
+        elif op == "<=":
+            return property_value <= compare_val
+    except Exception as e:
+        logger.error(f"Error comparing property '{property_name}' with value '{value_str}' using '{op}': {e}")
+
+    return False
 
 
-def forward_pokemon():
-    pass
+def evaluate_rules(pokemon: Pokemon, rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Evaluates all loaded rules against a Pokemon object.
+    A rule matches if all of its conditions are satisfied (AND behavior).
+    Returns a list of matched rules.
+    """
+    matched_rules = []
+    for rule in rules:
+        match_conditions = rule.get("match", [])
+        if not match_conditions:
+            continue
+
+        all_conditions_match = True
+        for cond in match_conditions:
+            if not evaluate_condition(pokemon, cond):
+                all_conditions_match = False
+                break
+
+        if all_conditions_match:
+            matched_rules.append(rule)
+
+    return matched_rules
