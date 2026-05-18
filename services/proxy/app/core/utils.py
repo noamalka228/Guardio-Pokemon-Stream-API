@@ -14,8 +14,6 @@ from pathlib import Path
 from app.core.config import settings
 from app.models.pokemon import Pokemon
 
-PROXY_BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CONFIG_FILE_PATH = PROXY_BASE_DIR / settings.pokeproxy_config
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +40,11 @@ def load_rules() -> List[Dict[str, Any]]:
     """
     Loads routing rules from the configuration file specified in settings.
     """
-    logger.info(f"Loading rules from: {CONFIG_FILE_PATH}")
-    if not os.path.exists(CONFIG_FILE_PATH):
-        logger.error(f"Config file not found at: {CONFIG_FILE_PATH}")
+    logger.info(f"Loading rules from: {settings.pokeproxy_config}")
+    if not os.path.exists(settings.pokeproxy_config):
+        logger.error(f"Config file not found at: {settings.pokeproxy_config}")
         raise FileNotFoundError()
-    with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as f:
+    with open(settings.pokeproxy_config, "r", encoding="utf-8") as f:
         data = json.load(f)
         return data.get("rules", [])
 
