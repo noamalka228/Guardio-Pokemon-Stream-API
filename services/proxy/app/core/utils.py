@@ -9,6 +9,7 @@ import logging
 import os
 from typing import Dict, List, Tuple, Any, Optional
 from fastapi import HTTPException
+import httpx
 
 from app.core.config import settings
 
@@ -31,3 +32,24 @@ def validate_signature(signature: Optional[str], raw_body: bytes) -> None:
 
     if not hmac.compare_digest(signature, expected_signature):
         raise HTTPException(status_code=401, detail="Invalid signature")
+
+
+def load_rules() -> List[Dict[str, Any]]:
+    """
+    Loads routing rules from the configuration file specified in settings.
+    """
+    config_path = settings.pokeproxy_config
+    if not os.path.exists(config_path):
+        logger.error(f"Config file not found at: {config_path}")
+        raise FileNotFoundError()
+    with open(config_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        return data.get("rules", [])
+
+
+def evaluate_rules():
+    pass
+
+
+def forward_pokemon():
+    pass
