@@ -3,12 +3,9 @@ Router for defining Pokemon Proxy Stream Service API routes.
 """
 import logging
 from fastapi import APIRouter, Request, HTTPException
-from app.core.utils import (
-    validate_signature,
-    load_rules,
-    evaluate_rules,
-    forward_pokemon
-)
+from app.core.security import validate_signature
+from app.services.rules_engine import load_rules, evaluate_rules
+from app.clients.destination import forward_pokemon
 from app.proto import pokemon_pb2
 from app.models.pokemon import Pokemon
 from app.models.rule import Rule

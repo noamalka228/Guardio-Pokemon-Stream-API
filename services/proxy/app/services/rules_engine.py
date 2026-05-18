@@ -1,39 +1,15 @@
 """
-Utility functions, rule-matching engine, and signature validation for Pokeproxy.
+Rule matching engine for evaluating Pokemon telemetry data against dynamic conditions.
 """
-import httpx
-import hashlib
-import hmac
+import os
 import json
 import logging
-import os
-from typing import Dict, List, Any, Optional
-from fastapi import HTTPException
-from pathlib import Path
+from typing import List, Dict, Any
 
 from app.core.config import settings
 from app.models.pokemon import Pokemon
 
-
 logger = logging.getLogger(__name__)
-
-
-def validate_signature(signature: Optional[str], raw_body: bytes) -> None:
-    """
-    Validates the cryptographic HMAC-SHA256 signature of the raw request body.
-    Raises HTTPException (401) if signature is missing or mismatch is detected.
-    """
-    if not signature:
-        raise HTTPException(status_code=401, detail="Missing signature")
-
-    expected_signature = hmac.new(
-        settings.decoded_secret_bytes,
-        raw_body,
-        hashlib.sha256
-    ).hexdigest()
-
-    if not hmac.compare_digest(signature, expected_signature):
-        raise HTTPException(status_code=401, detail="Invalid signature")
 
 
 def load_rules() -> List[Dict[str, Any]]:
@@ -81,7 +57,7 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     if not parts:
         return False
 
-    property_name, op, value_str = parts
+    property_name, op, property_value = parts
 
     if not hasattr(pokemon, property_name):
         logger.warning(f"Pokemon object does not have attribute: '{property_name}'")
@@ -92,25 +68,25 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     try:
         # Cast the value string to match the protobuf field value type
         if isinstance(property_value, bool):
-            compare_val = value_str.lower() in ("true", "1")
+            compare_value = property_value.lower() in ("true", "1")
         elif isinstance(property_value, (int, float)):
-            compare_val = type(property_value)(value_str)
+            compare_value = type(property_value)(property_value)
         elif isinstance(property_value, str):
-            compare_val = value_str.strip("'\"")
+            compare_value = property_value.strip("'\"")
         else:
-            compare_val = value_str
+            compare_value = property_value
 
         # Perform the actual comparison
         if op == "==":
-            return property_value == compare_val
+            return property_value == compare_value
         elif op == "!=":
-            return property_value != compare_val
+            return property_value != compare_value
         elif op == ">":
-            return property_value > compare_val
+            return property_value > compare_value
         elif op == "<":
-            return property_value < compare_val
+            return property_value < compare_value
     except Exception as e:
-        logger.error(f"Error comparing property '{property_name}' with value '{value_str}' using '{op}': {e}")
+        logger.error(f"Error comparing property '{property_name}' with value '{property_value}' using '{op}': {e}")
 
     return False
 
@@ -137,23 +113,3 @@ def evaluate_rules(pokemon: Pokemon, rules: List[Dict[str, Any]]) -> List[Dict[s
             matched_rules.append(rule)
 
     return matched_rules
-
-async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Forwards the Pokemon telemetry data to the destination URL.
-    Returns the response JSON dictionary from the destination service.
-    """
-    try:
-        async with httpx.AsyncClient() as client:
-            payload = {
-                "pokemon": pokemon_data,
-                "reason": reason
-            }
-            logger.info(f"Forwarding pokemon to {url}: Status {payload}")
-            response = await client.post(url, json=payload, timeout=5.0)
-            response.raise_for_status()
-            logger.info(f"Successfully forwarded pokemon to {url}: Status {response.status_code}")
-            return response.json()
-    except Exception as e:
-        logger.error(f"Error occurred while forwarding pokemon to {url}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to forward pokemon to {url}")
