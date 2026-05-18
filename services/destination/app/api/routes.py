@@ -4,11 +4,16 @@ Router for minimal destination service.
 import logging
 from typing import Optional
 from fastapi import APIRouter, Request
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-@router.post("/receive")
+class RecievePokemonResponse(BaseModel):
+    status: str
+    message: str
+
+@router.post("/receive", response_model=RecievePokemonResponse)
 async def receive_pokemon(request: Request):
     """
     Receives JSON-formatted pokemon from the proxy service and logs it.
@@ -21,7 +26,7 @@ async def receive_pokemon(request: Request):
         logger.error(f"Received malformed JSON body: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to decode JSON: {e}")
 
-    return {
-        "status": "success",
-        "message": f"Pokemon {pokemon['name']} printed succesfully!",
-    }
+    return RecievePokemonResponse(
+        status="success",
+        message=f"Pokemon {pokemon['name']} printed succesfully!"
+    )
