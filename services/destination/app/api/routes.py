@@ -23,5 +23,5 @@ async def receive_pokemon(request: Request):
 
     return {
         "status": "success",
-        "message": f"Pokemon '{body['name']}' printed succesfully!",
+        "message": f"Pokemon '{pokemon['name']}' printed succesfully!",
     }
