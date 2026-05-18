@@ -87,6 +87,7 @@ Using `docker-compose.yml` you can simply start both services by running:
 ```bash
 docker-compose up -d
 ```
+**NOTE**: Make sure your docker daemon is running before running this command.
 
 ---
 
