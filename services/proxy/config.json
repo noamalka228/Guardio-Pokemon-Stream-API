@@ -1,21 +1,21 @@
 {
   "rules": [
     {
-      "url": "http://localhost:8001/receive",
+      "url": "https://guardio-pokemon-stream-api.vercel.app/receive",
       "reason": "legendary pokemon",
       "match": [
         "legendary == true"
       ]
     },
     {
-      "url": "http://localhost:8001/receive",
+      "url": "https://guardio-pokemon-stream-api.vercel.app/receive",
       "reason": "high speed pokemon",
       "match": [
         "speed > 100"
       ]
     },
     {
-      "url": "http://localhost:8001/receive",
+      "url": "https://guardio-pokemon-stream-api.vercel.app/receive",
       "reason": "awesome pokemon",
       "match": [
         "hit_points == 20",
