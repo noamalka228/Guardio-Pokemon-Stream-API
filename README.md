@@ -80,6 +80,16 @@ Both services will hot-reload automatically when source files change.
 
 ---
 
+## Running with Docker
+
+Using docker-compose.yml file you can simply start both services by running:
+
+```bash
+
+docker-compose up -d
+
+```
+
 ## Routing Rules Configuration
 
 The proxy evaluates each incoming Pokémon against a JSON rules file. A Pokémon is forwarded only if it matches **all conditions** in a rule (AND logic).
@@ -140,7 +150,8 @@ The proxy evaluates each incoming Pokémon against a JSON rules file. A Pokémon
 
 | Method | Path      | Description                                      |
 |--------|-----------|--------------------------------------------------|
-| `GET`  | `/`       | Health check / welcome message                   |
+| `GET`  | `/`       | Welcome message                                  |
+| `GET`  | `/health` | Health check                                     |
 | `POST` | `/stream` | Receives Protobuf Pokémon payload, validates signature, evaluates rules, forwards match |
 
 **Required request headers for `/stream`:**

@@ -19,7 +19,7 @@ async def receive_pokemon(request: Request):
         logger.info(f"The Pokemon {pokemon['name']} is {reason}!")
     except Exception as e:
         logger.error(f"Received malformed JSON body: {e}")
-        return {"status": "error", "message": "Invalid JSON payload"}
+        raise HTTPException(status_code=400, detail=f"Failed to decode JSON: {e}")
 
     return {
         "status": "success",
