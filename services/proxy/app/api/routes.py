@@ -39,17 +39,17 @@ async def stream(request: Request):
     try:
         proto_pokemon = pokemon_pb2.Pokemon.FromString(raw_body)
         pokemon = Pokemon.from_proto(proto_pokemon)
+
         rules = load_rules()
         matched_rules = evaluate_rules(pokemon, rules)
         if not matched_rules:
             raise HTTPException(status_code=404, detail="No matching rule found")
+
+        # TODO: Consider using gRPC instead of HTTP for forwarding
+        # Maybe randomize the rule that gets matched
+        return await forward_pokemon(matched_rules[0], pokemon.to_dict())
         
-        # TODO: Implement the logic for forwarding the pokemon data to the destination service
     except DecodeError as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
-        
-    return {
-        "message": "Pokemon received",
-    }
