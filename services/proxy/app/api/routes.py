@@ -10,6 +10,7 @@ from app.core.utils import (
 )
 from app.proto import pokemon_pb2
 from app.models.pokemon import Pokemon
+from app.models.rule import Rule
 from google.protobuf.message import DecodeError
 
 router = APIRouter()
@@ -47,7 +48,10 @@ async def stream(request: Request):
 
         # TODO: Consider using gRPC instead of HTTP for forwarding
         # Maybe randomize the rule that gets matched
-        return await forward_pokemon(matched_rules[0], pokemon.to_dict())
+        selected_rule: Rule = matched_rules[0]
+        logger.info(f"Found {len(matched_rules)} matching rules for pokemon: {pokemon.name}")
+        logger.info(f"Forwading to {selected_rule["url"]} with reason: {selected_rule["reason"]}")
+        return await forward_pokemon(selected_rule["url"], selected_rule["reason"], pokemon.to_dict())
         
     except DecodeError as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")

@@ -130,3 +130,18 @@ def evaluate_rules(pokemon: Pokemon, rules: List[Dict[str, Any]]) -> List[Dict[s
             matched_rules.append(rule)
 
     return matched_rules
+
+async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -> None:
+    """
+    Forwards the Pokemon telemetry data to the destination URL.
+    """
+    logger.info(f"Matching rule found! Reason: '{reason}'. Forwarding to URL: {url}")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=pokemon_data, timeout=5.0)
+            if response.status_code >= 400:
+                logger.error(f"Failed to forward pokemon to {url}: Status {response.status_code} - {response.text}")
+            else:
+                logger.info(f"Successfully forwarded pokemon to {url}: Status {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error occurred while forwarding pokemon to {url}: {e}")
