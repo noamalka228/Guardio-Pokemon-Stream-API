@@ -52,7 +52,7 @@ async def stream(request: Request):
         # Maybe randomize the rule that gets matched
         selected_rule: Rule = matched_rules[0]
         logger.info(f"Found {len(matched_rules)} matching rules for pokemon: {pokemon.name}")
-        logger.info(f"Forwading to {selected_rule["url"]} with reason: {selected_rule["reason"]}")
+        logger.info(f"Forwading to {selected_rule['url']} with reason: {selected_rule['reason']}")
         return await forward_pokemon(selected_rule["url"], selected_rule["reason"], pokemon.to_dict())
         
     except DecodeError as e:
