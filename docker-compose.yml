@@ -1,0 +1,23 @@
+services:
+  destination:
+    build:
+      context: ./services/destination
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+      - "8002:8002"  # Exposed here because the proxy container shares this network namespace
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  proxy:
+    build:
+      context: ./services/proxy
+      dockerfile: Dockerfile
+    network_mode: "service:destination" 
+    env_file:
+      - ./services/proxy/.env
+    environment:
+      - POKEPROXY_CONFIG=config-local.json  # Ensures the container always uses the relative path
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - destination
