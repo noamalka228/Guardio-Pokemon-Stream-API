@@ -1,9 +1,16 @@
 """
-Router for defining API routes.
+Router for defining Pokemon Proxy Stream Service API routes.
 """
 from fastapi import APIRouter, Request, HTTPException
-from app.core.utils import validate_signature
-from app.schemas import pokemon_pb2
+from app.core.utils import (
+    validate_signature,
+    load_rules,
+    evaluate_rules,
+    forward_pokemon
+)
+from app.proto import pokemon_pb2
+from app.models.pokemon import Pokemon
+from google.protobuf.message import DecodeError
 
 router = APIRouter()
 
@@ -19,7 +26,10 @@ def read_root():
 @router.post("/stream", tags=["Pokemon"])
 async def stream(request: Request):
     """
-    Returns a stream of pokemon.
+    Receives a stream of Pokemon data, validates the signature, evaluates rules, 
+    and forwards the data to the destination service.
+    The destination service will process the data and return a response to the 
+    proxy service and eventually to the client.
     """
     raw_body = await request.body()
 
@@ -27,25 +37,11 @@ async def stream(request: Request):
     validate_signature(signature, raw_body)
 
     try:
-        pokemon = pokemon_pb2.Pokemon.FromString(raw_body)
-    except Exception as e:
+        proto_pokemon = pokemon_pb2.Pokemon.FromString(raw_body)
+        # TODO: Implement the logic for forwarding the pokemon data to the destination service
+    except DecodeError as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
         
-        return {
+    return {
         "message": "Pokemon received",
-        "pokemon": {
-            "number": pokemon.number,
-            "name": pokemon.name,
-            "type_one": pokemon.type_one,
-            "type_two": pokemon.type_two,
-            "total": pokemon.total,
-            "hit_points": pokemon.hit_points,
-            "attack": pokemon.attack,
-            "defense": pokemon.defense,
-            "special_attack": pokemon.special_attack,
-            "special_defense": pokemon.special_defense,
-            "speed": pokemon.speed,
-            "generation": pokemon.generation,
-            "legendary": pokemon.legendary
-        }
     }
