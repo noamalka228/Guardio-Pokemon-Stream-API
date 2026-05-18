@@ -15,14 +15,13 @@ async def receive_pokemon(request: Request):
     """
     try:
         body = await request.json()
+        pokemon, reason = body["pokemon"], body["reason"]
+        logger.info(f"The Pokemon {pokemon["name"]} is {reason}!")
     except Exception as e:
         logger.error(f"Received malformed JSON body: {e}")
         return {"status": "error", "message": "Invalid JSON payload"}
 
-    logger.info(f"Received pokemon {body['name']}")
-
     return {
         "status": "success",
-        "message": f"Pokemon '{body['name']}' telemetry stored successfully",
-        "pokemon_name": body['name']
+        "message": f"Pokemon '{body['name']}' printed succesfully!",
     }
