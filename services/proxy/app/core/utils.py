@@ -52,10 +52,10 @@ def load_rules() -> List[Dict[str, Any]]:
 def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     """
     Evaluates a single condition string against a Pokemon object.
-    Supports ==, !=, >=, <=, >, < operators and handles type conversions.
+    Supports ==, !=, >, < operators and handles type conversions.
     """
     # TODO: Separate the function
-    operators = ["==", "!=", ">=", "<=", ">", "<"]
+    operators = ["==", "!=", ">", "<"]
     op = None
     for possible_op in operators:
         if possible_op in condition:
@@ -100,10 +100,6 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
             return property_value > compare_val
         elif op == "<":
             return property_value < compare_val
-        elif op == ">=":
-            return property_value >= compare_val
-        elif op == "<=":
-            return property_value <= compare_val
     except Exception as e:
         logger.error(f"Error comparing property '{property_name}' with value '{value_str}' using '{op}': {e}")
 
