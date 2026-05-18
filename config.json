@@ -2,14 +2,14 @@
   "rules": [
     {
       "url": "http://localhost:8001/receive",
-      "reason": "legendary pokemon detected",
+      "reason": "legendary pokemon",
       "match": [
         "legendary == true"
       ]
     },
     {
       "url": "http://localhost:8001/receive",
-      "reason": "high speed pokemon detected",
+      "reason": "high speed pokemon",
       "match": [
         "speed > 100"
       ]
