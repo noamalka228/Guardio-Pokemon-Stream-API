@@ -1,15 +1,8 @@
 """
 Router for defining API routes.
 """
-import base64
-import hmac
-import hashlib
-import time
-import httpx
-from fastapi import APIRouter, Request, HTTPException, Response
-from google.protobuf.json_format import MessageToDict
-
-from app.core.config import settings
+from fastapi import APIRouter, Request, HTTPException
+from app.core.utils import validate_signature
 from app.schemas import pokemon_pb2
 
 router = APIRouter()
@@ -31,32 +24,14 @@ async def stream(request: Request):
     raw_body = await request.body()
 
     signature = request.headers.get("X-Grd-Signature")
-    if not signature:
-        raise HTTPException(status_code=401, detail="Missing signature")
-
-    if not settings.stream_secret:
-        raise HTTPException(status_code=500, detail="Server secret not configured")
-
-    try:
-        secret_bytes = base64.b64decode(settings.stream_secret)
-    except Exception:
-        raise HTTPException(status_code=500, detail="Invalid server secret format")
-
-    expected_signature = hmac.new(
-        secret_bytes,
-        raw_body,
-        hashlib.sha256
-    ).hexdigest()
-
-    if not hmac.compare_digest(signature, expected_signature):
-        raise HTTPException(status_code=401, detail="Invalid signature")
+    validate_signature(signature, raw_body)
 
     try:
         pokemon = pokemon_pb2.Pokemon.FromString(raw_body)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
         
-    return {
+        return {
         "message": "Pokemon received",
         "pokemon": {
             "number": pokemon.number,
