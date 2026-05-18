@@ -137,7 +137,11 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
     """
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=pokemon_data, timeout=5.0)
+            payload = {
+                "pokemon": pokemon_data,
+                "reason": reason
+            }
+            response = await client.post(url, json=payload, timeout=5.0)
             if response.status_code >= 400:
                 logger.error(f"Failed to forward pokemon to {url}: Status {response.status_code} - {response.text}")
             else:
