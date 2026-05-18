@@ -135,7 +135,6 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
     """
     Forwards the Pokemon telemetry data to the destination URL.
     """
-    logger.info(f"Matching rule found! Reason: '{reason}'. Forwarding to URL: {url}")
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=pokemon_data, timeout=5.0)
