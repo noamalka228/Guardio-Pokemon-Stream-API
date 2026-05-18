@@ -82,13 +82,31 @@ Both services will hot-reload automatically when source files change.
 
 ## Running with Docker
 
-Using docker-compose.yml file you can simply start both services by running:
+Using `docker-compose.yml` you can simply start both services by running:
 
 ```bash
-
 docker-compose up -d
-
 ```
+
+---
+
+## Triggering the Live Pokémon Stream
+
+To trigger the live Pokémon stream from Guardio's hiring service to your running proxy service, I have provided a simple helper script `start_stream.py` in the root of the repository.
+
+### Running the Trigger Script
+
+1. Open `start_stream.py` in your text editor.
+2. Configure the following variables in the file:
+   * `EMAIL`: The email address you used for the hiring process.
+   * `PROXY_URL`: The stream endpoint of your running proxy. **NOTE**: The proxy URL should be publicly accessible, so that the hiring service can send requests to it.
+   * `STREAM_SECRET`: The Base64-encoded secret key. You can generate a new secret key using the following command: `openssl rand -base64 32` or ask your favorite AI assistant to generate one for you.
+3. Make sure your virtual environment is active and both services are running.
+4. Run the script:
+   ```bash
+   python start_stream.py
+   ```
+5. The script will send a POST request to `https://hiring.external.guardio.dev/be/stream_start` to initiate the real-time stream.
 
 ## Routing Rules Configuration
 
