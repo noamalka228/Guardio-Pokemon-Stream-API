@@ -3,6 +3,7 @@ Router for defining Pokemon Proxy Stream Service API routes.
 """
 import logging
 from fastapi import APIRouter, Request, HTTPException
+from app.core.constants import HTTP_SIGNATURE_HEADER
 from app.core.security import validate_signature
 from app.services.rules_engine import load_rules, evaluate_rules
 from app.clients.destination import forward_pokemon
@@ -33,7 +34,7 @@ async def stream(request: Request):
     """
     raw_body = await request.body()
 
-    signature = request.headers.get("X-Grd-Signature")
+    signature = request.headers.get(HTTP_SIGNATURE_HEADER)
     validate_signature(signature, raw_body)
 
     try:

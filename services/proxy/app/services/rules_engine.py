@@ -7,6 +7,7 @@ import logging
 from typing import List, Dict, Any
 
 from app.core.config import settings
+from app.core.constants import OPERATORS
 from app.models.pokemon import Pokemon
 
 logger = logging.getLogger(__name__)
@@ -29,9 +30,8 @@ def extract_condition_parts(condition: str) -> tuple[str, str, str] | None:
     """
     Extracts the property name, operator, and value from a condition string.
     """
-    operators = ["==", "!=", ">", "<"]
     op = None
-    for possible_op in operators:
+    for possible_op in OPERATORS:
         if possible_op in condition:
             op = possible_op
             break
