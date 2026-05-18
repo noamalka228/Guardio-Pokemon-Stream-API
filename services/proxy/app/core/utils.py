@@ -148,6 +148,7 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
             }
             logger.info(f"Forwarding pokemon to {url}: Status {payload}")
             response = await client.post(url, json=payload, timeout=5.0)
+            response.raise_for_status()
             logger.info(f"Successfully forwarded pokemon to {url}: Status {response.status_code}")
             return response.json()
     except Exception as e:
