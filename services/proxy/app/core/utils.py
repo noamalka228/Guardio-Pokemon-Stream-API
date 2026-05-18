@@ -49,12 +49,10 @@ def load_rules() -> List[Dict[str, Any]]:
         return data.get("rules", [])
 
 
-def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
+def extract_condition_parts(condition: str) -> tuple[str, str, str] | None:
     """
-    Evaluates a single condition string against a Pokemon object.
-    Supports ==, !=, >, < operators and handles type conversions.
+    Extracts the property name, operator, and value from a condition string.
     """
-    # TODO: Separate the function
     operators = ["==", "!=", ">", "<"]
     op = None
     for possible_op in operators:
@@ -64,15 +62,26 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
 
     if not op:
         logger.warning(f"No valid operator found in condition: '{condition}'")
-        return False
+        return None
 
     parts = condition.split(op, 1)
     if len(parts) != 2:
         logger.warning(f"Invalid condition: {condition}")
+        return None
+
+    return parts[0].strip(), op, parts[1].strip()
+
+
+def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
+    """
+    Evaluates a single condition string against a Pokemon object.
+    Supports ==, !=, >, < operators and handles type conversions.
+    """
+    parts = extract_condition_parts(condition)
+    if not parts:
         return False
 
-    property_name = parts[0].strip()
-    value_str = parts[1].strip()
+    property_name, op, value_str = parts
 
     if not hasattr(pokemon, property_name):
         logger.warning(f"Pokemon object does not have attribute: '{property_name}'")
