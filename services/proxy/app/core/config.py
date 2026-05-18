@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     """
     app_name: str = "Guardio Pokemon Stream API"
     stream_secret: str = ""
+    # TODO: Perhaps absolute path is better?
     pokeproxy_config: str = "config.json"
     decoded_secret_bytes: bytes = b""
 

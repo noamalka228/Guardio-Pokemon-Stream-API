@@ -1,18 +1,21 @@
 """
 Utility functions, rule-matching engine, and signature validation for Pokeproxy.
 """
-import base64
+import httpx
 import hashlib
 import hmac
 import json
 import logging
 import os
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Any, Optional
 from fastapi import HTTPException
-import httpx
+from pathlib import Path
 
 from app.core.config import settings
 from app.models.pokemon import Pokemon
+
+PROXY_BASE_DIR = Path(__file__).resolve().parent.parent.parent
+CONFIG_FILE_PATH = PROXY_BASE_DIR / settings.pokeproxy_config
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +42,11 @@ def load_rules() -> List[Dict[str, Any]]:
     """
     Loads routing rules from the configuration file specified in settings.
     """
-    config_path = settings.pokeproxy_config
-    if not os.path.exists(config_path):
-        logger.error(f"Config file not found at: {config_path}")
+    logger.info(f"Loading rules from: {CONFIG_FILE_PATH}")
+    if not os.path.exists(CONFIG_FILE_PATH):
+        logger.error(f"Config file not found at: {CONFIG_FILE_PATH}")
         raise FileNotFoundError()
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
         return data.get("rules", [])
 
@@ -53,6 +56,7 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     Evaluates a single condition string against a Pokemon object.
     Supports ==, !=, >=, <=, >, < operators and handles type conversions.
     """
+    # TODO: Separate the function
     operators = ["==", "!=", ">=", "<=", ">", "<"]
     op = None
     for possible_op in operators:
@@ -131,9 +135,10 @@ def evaluate_rules(pokemon: Pokemon, rules: List[Dict[str, Any]]) -> List[Dict[s
 
     return matched_rules
 
-async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -> None:
+async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Forwards the Pokemon telemetry data to the destination URL.
+    Returns the response JSON dictionary from the destination service.
     """
     try:
         async with httpx.AsyncClient() as client:
@@ -141,10 +146,10 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
                 "pokemon": pokemon_data,
                 "reason": reason
             }
+            logger.info(f"Forwarding pokemon to {url}: Status {payload}")
             response = await client.post(url, json=payload, timeout=5.0)
-            if response.status_code >= 400:
-                logger.error(f"Failed to forward pokemon to {url}: Status {response.status_code} - {response.text}")
-            else:
-                logger.info(f"Successfully forwarded pokemon to {url}: Status {response.status_code}")
+            logger.info(f"Successfully forwarded pokemon to {url}: Status {response.status_code}")
+            return response.json()
     except Exception as e:
         logger.error(f"Error occurred while forwarding pokemon to {url}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to forward pokemon to {url}")

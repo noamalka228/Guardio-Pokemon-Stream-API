@@ -1,6 +1,7 @@
 """
 Router for defining Pokemon Proxy Stream Service API routes.
 """
+import logging
 from fastapi import APIRouter, Request, HTTPException
 from app.core.utils import (
     validate_signature,
@@ -14,6 +15,7 @@ from app.models.rule import Rule
 from google.protobuf.message import DecodeError
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", tags=["Pokemon"])
@@ -55,5 +57,9 @@ async def stream(request: Request):
         
     except DecodeError as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
-    except Exception:
+    except HTTPException as e:
+        # TODO: I dont like this
+        raise e
+    except Exception as e:
+        logger.error(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
