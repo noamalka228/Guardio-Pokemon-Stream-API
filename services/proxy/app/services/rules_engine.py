@@ -57,7 +57,7 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     if not parts:
         return False
 
-    property_name, op, property_value = parts
+    property_name, op, value_str = parts
 
     if not hasattr(pokemon, property_name):
         logger.warning(f"Pokemon object does not have attribute: '{property_name}'")
@@ -68,13 +68,13 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
     try:
         # Cast the value string to match the protobuf field value type
         if isinstance(property_value, bool):
-            compare_value = property_value.lower() in ("true", "1")
+            compare_value = value_str.lower() in ("true", "1")
         elif isinstance(property_value, (int, float)):
-            compare_value = type(property_value)(property_value)
+            compare_value = type(property_value)(value_str)
         elif isinstance(property_value, str):
-            compare_value = property_value.strip("'\"")
+            compare_value = value_str.strip("'\"")
         else:
-            compare_value = property_value
+            compare_value = value_str
 
         # Perform the actual comparison
         if op == "==":
@@ -86,7 +86,7 @@ def evaluate_condition(pokemon: Pokemon, condition: str) -> bool:
         elif op == "<":
             return property_value < compare_value
     except Exception as e:
-        logger.error(f"Error comparing property '{property_name}' with value '{property_value}' using '{op}': {e}")
+        logger.error(f"Error comparing property '{property_name}' with value '{value_str}' using '{op}': {e}")
 
     return False
 
