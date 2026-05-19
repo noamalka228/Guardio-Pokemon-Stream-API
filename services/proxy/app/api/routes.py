@@ -47,7 +47,6 @@ async def stream(request: Request):
         if not matched_rules:
             raise NoMatchingRuleError(f"No matching rule found for pokemon: {pokemon.name}")
 
-        # TODO: Consider using gRPC instead of HTTP for forwarding
         # TODO: Stipping header, tests
         # Maybe randomize the rule that gets matched
         selected_rule: Rule = matched_rules[0]

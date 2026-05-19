@@ -14,6 +14,9 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
     Forwards the Pokemon telemetry data to the destination URL.
     Returns the response JSON dictionary from the destination service.
     """
+    # Implemented an HTTP-based communication between the proxy and destination service
+    # For simplicity and readability purposes. In a real-world scenario, consider using gRPC
+    # for better performance.
     try:
         async with httpx.AsyncClient() as client:
             payload = {
