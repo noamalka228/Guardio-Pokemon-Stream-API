@@ -188,4 +188,53 @@ The proxy evaluates each incoming Pokémon against a JSON rules file. A Pokémon
 | `401` | Missing or invalid HMAC signature            |
 | `400` | Request body could not be decoded as Protobuf |
 | `404` | No rule matched the Pokémon                  |
+| `504` | Destination service timed out                |
 | `500` | Internal forwarding error                    |
+
+---
+
+## Testing
+
+Each service has its own independent test suite under its `tests/` directory.
+
+### Install dev dependencies
+
+Before running tests, install the dev requirements for the service you want to test.
+
+**Proxy service:**
+
+```bash
+pip install -r services/proxy/requirements-dev.txt
+```
+
+**Destination service:**
+
+```bash
+pip install -r services/destination/requirements-dev.txt
+```
+
+> The dev requirements files extend the production `requirements.txt` using `-r requirements.txt`, so they include everything needed to run and test the service.
+
+### Run tests
+
+**Proxy service (from repo root):**
+
+```bash
+pytest services/proxy
+```
+
+**Destination service (from repo root):**
+
+```bash
+pytest services/destination
+```
+
+**Both services sequentially:**
+
+```bash
+# Windows (PowerShell)
+pytest services/proxy; pytest services/destination
+
+# macOS / Linux
+pytest services/proxy && pytest services/destination
+```
