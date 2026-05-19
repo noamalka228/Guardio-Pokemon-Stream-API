@@ -36,8 +36,8 @@ def test_receive_valid_pokemon_returns_200():
 
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "success"
-    assert body["message"] == "Pokemon Mewtwo is legendary pokemon printed succesfully!"
+    assert body["status"] == "ok"
+    assert body["message"] == "Pokemon Mewtwo is legendary pokemon! - printed succesfully!"
 
 
 def test_receive_malformed_json_returns_400():

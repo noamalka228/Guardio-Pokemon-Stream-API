@@ -23,8 +23,8 @@ def test_stream_valid_pokemon_forwarded(
     ]
     
     mock_forward_response = {
-        "status": "success",
-        "message": "Pokemon Mewtwo is legendary pokemon printed succesfully!"
+        "status": "ok",
+        "message": "Pokemon Mewtwo is legendary pokemon! - printed succesfully!"
     }
     
     signature = generate_signature(test_pokemon_proto_bytes)
