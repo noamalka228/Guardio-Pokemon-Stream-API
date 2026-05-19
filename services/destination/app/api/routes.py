@@ -28,5 +28,5 @@ async def receive_pokemon(request: Request):
 
     return RecievePokemonResponse(
         status="success",
-        message=f"Pokemon {pokemon['name']} printed succesfully!"
+        message=f"Pokemon {pokemon['name']} is {reason} printed succesfully!"
     )
