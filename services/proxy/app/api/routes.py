@@ -1,7 +1,9 @@
 """
 Router for defining Pokemon Proxy Stream Service API routes.
 """
+import random
 import logging
+
 from fastapi import APIRouter, Request, HTTPException
 from app.core.constants import HTTP_SIGNATURE_HEADER
 from app.core.security import validate_signature
@@ -47,9 +49,9 @@ async def stream(request: Request):
         if not matched_rules:
             raise NoMatchingRuleError(f"No matching rule found for pokemon: {pokemon.name}")
 
-        # TODO: Stipping header, tests
-        # Maybe randomize the rule that gets matched
-        selected_rule: Rule = matched_rules[0]
+        # For simplicity, we'll just pick the first rule. In a real-world scenario, 
+        # we might want to display all of the pokemon's reasons.
+        selected_rule: Rule = random.choice(matched_rules)
         logger.info(f"Found {len(matched_rules)} matching rules for pokemon: {pokemon.name}")
         logger.info(f"Forwading to {selected_rule['url']} with reason: {selected_rule['reason']}")
         return await forward_pokemon(selected_rule["url"], selected_rule["reason"], pokemon.to_dict())
