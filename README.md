@@ -111,6 +111,15 @@ To trigger the live Pokémon stream from Guardio's hiring service to your runnin
    ```
 5. The script will send a POST request to `https://hiring.external.guardio.dev/be/stream_start` to initiate the real-time stream.
 
+6. A request body example to the proxy service:
+```
+{
+	"url":"https://proxy-service-6tm5.onrender.com/stream",
+	"email":"test@guard.io",
+	"enc_secret": "your-generated-enc-secret-here"
+}
+```
+
 ## Routing Rules Configuration
 
 The proxy evaluates each incoming Pokémon against a JSON rules file. A Pokémon is forwarded only if it matches **all conditions** in a rule (AND logic).
