@@ -240,3 +240,18 @@ pytest services/proxy; pytest services/destination
 # macOS / Linux
 pytest services/proxy && pytest services/destination
 ```
+
+### Manual Testing of Locally Deployed Service
+
+To test a running proxy instance (local or deployed) manually, you can send custom HTTP `POST` requests.
+
+A helper script `services/proxy/app/scripts/send_test_request.py` compiles, sign, and send a custom Pokémon payload to the proxy.
+
+To run it:
+
+```bash
+# Make sure your virtual environment is active
+python services/proxy/app/scripts/send_test_request.py
+```
+
+The script reads the `STREAM_SECRET` from `services/proxy/.env` and sends a signed Protobuf request for a Mewtwo payload to `http://localhost:8002/stream`.

@@ -6,7 +6,6 @@ import json
 import sys
 import urllib.request
 import urllib.error
-from dataclasses import dataclass
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURATION
@@ -14,7 +13,7 @@ from dataclasses import dataclass
 # ─────────────────────────────────────────────────────────────────────────────
 PROXY_URL = "https://proxy-service-6tm5.onrender.com/stream" # Streaming won't work if the PROXY_URL is not exposed to the internet.
 EMAIL = "test@guard.io"
-STREAM_SECRET = "q/8V0xH+hP7LzKjB4cRt1sW6Yv2N9uA5iE0O3fD1m/A="
+STREAM_SECRET = ""
 
 STREAM_START_URL = "https://hiring.external.guardio.dev/be/stream_start"
 
