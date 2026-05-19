@@ -100,7 +100,9 @@ To trigger the live Pokémon stream from Guardio's hiring service to your runnin
 1. Open `start_stream.py` in your text editor.
 2. Configure the following variables in the file:
    * `EMAIL`: The email address you used for the hiring process.
-   * `PROXY_URL`: The stream endpoint of your running proxy. **NOTE**: The proxy URL should be publicly accessible, so that the hiring service can send requests to it.
+   * `PROXY_URL`: The stream endpoint of your running proxy.
+     
+     **NOTE**: The proxy URL should be publicly accessible, so that the hiring service can send requests to it. The destination service should be accessed by the proxy service, thus it does not HAVE to be publicly accessible.
    * `STREAM_SECRET`: The Base64-encoded secret key. You can generate a new secret key using the following command: `openssl rand -base64 32` or ask your favorite AI assistant to generate one for you.
 3. Make sure your virtual environment is active and both services are running.
 4. Run the script:
@@ -165,7 +167,7 @@ The proxy evaluates each incoming Pokémon against a JSON rules file. A Pokémon
 
 ## API Endpoints
 
-### Proxy Service (`http://localhost:8002`)
+### Proxy Service
 
 | Method | Path      | Description                                      |
 |--------|-----------|--------------------------------------------------|
