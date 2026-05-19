@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Helper script to start the live Pokémon stream from Guardio's hiring service.
 """
