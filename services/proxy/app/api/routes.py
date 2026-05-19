@@ -7,6 +7,7 @@ from app.core.constants import HTTP_SIGNATURE_HEADER
 from app.core.security import validate_signature
 from app.services.rules_engine import load_rules, evaluate_rules
 from app.clients.destination import forward_pokemon
+from app.exceptions import NoMatchingRuleError
 from app.proto import pokemon_pb2
 from app.models.pokemon import Pokemon
 from app.models.rule import Rule
@@ -44,9 +45,10 @@ async def stream(request: Request):
         rules = load_rules()
         matched_rules = evaluate_rules(pokemon, rules)
         if not matched_rules:
-            raise HTTPException(status_code=404, detail="No matching rule found")
+            raise NoMatchingRuleError(f"No matching rule found for pokemon: {pokemon.name}")
 
         # TODO: Consider using gRPC instead of HTTP for forwarding
+        # TODO: Stipping header, tests
         # Maybe randomize the rule that gets matched
         selected_rule: Rule = matched_rules[0]
         logger.info(f"Found {len(matched_rules)} matching rules for pokemon: {pokemon.name}")
@@ -55,9 +57,8 @@ async def stream(request: Request):
         
     except DecodeError as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
-    except HTTPException as e:
-        # TODO: I dont like this
-        raise e
+    except NoMatchingRuleError:
+        raise HTTPException(status_code=404, detail="No matching rule found")
     except Exception as e:
         logger.error(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

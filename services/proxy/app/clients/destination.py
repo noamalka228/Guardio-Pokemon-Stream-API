@@ -4,7 +4,6 @@ HTTP Client for forwarding Pokemon telemetry data to the destination service.
 import httpx
 import logging
 from typing import Dict, Any
-from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -27,4 +26,4 @@ async def forward_pokemon(url: str, reason: str, pokemon_data: Dict[str, Any]) -
             return response.json()
     except Exception as e:
         logger.error(f"Error occurred while forwarding pokemon to {url}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to forward pokemon to {url}")
+        raise RuntimeError(f"Failed to forward pokemon to {url}") from e
