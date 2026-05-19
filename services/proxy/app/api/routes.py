@@ -7,7 +7,7 @@ from app.core.constants import HTTP_SIGNATURE_HEADER
 from app.core.security import validate_signature
 from app.services.rules_engine import load_rules, evaluate_rules
 from app.clients.destination import forward_pokemon
-from app.exceptions import NoMatchingRuleError
+from app.exceptions import NoMatchingRuleError, DestinationTimeoutError
 from app.proto import pokemon_pb2
 from app.models.pokemon import Pokemon
 from app.models.rule import Rule
@@ -56,9 +56,12 @@ async def stream(request: Request):
         return await forward_pokemon(selected_rule["url"], selected_rule["reason"], pokemon.to_dict())
         
     except DecodeError as e:
+        logger.error(f"Failed to decode Protobuf: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to decode Protobuf: {str(e)}")
     except NoMatchingRuleError:
         raise HTTPException(status_code=404, detail="No matching rule found")
+    except DestinationTimeoutError:
+        raise HTTPException(status_code=504, detail="Pokemon Processing timed out")
     except Exception as e:
         logger.error(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
