@@ -5,6 +5,7 @@ from app.main import app
 from app.exceptions import DestinationTimeoutError
 
 client = TestClient(app)
+app.state.rules = []
 
 
 def test_stream_valid_pokemon_forwarded(
@@ -29,9 +30,8 @@ def test_stream_valid_pokemon_forwarded(
     
     signature = generate_signature(test_pokemon_proto_bytes)
     
-    with patch("app.api.routes.load_rules", return_value=mock_rules), \
-         patch("app.api.routes.forward_pokemon", return_value=mock_forward_response) as mock_forward:
-             
+    with patch("app.api.routes.forward_pokemon", return_value=mock_forward_response) as mock_forward:
+        app.state.rules = mock_rules
         response = client.post(
             "/stream",
             content=test_pokemon_proto_bytes,
@@ -66,9 +66,8 @@ def test_stream_no_matching_rule_returns_404(
     
     signature = generate_signature(test_pokemon_proto_bytes)
     
-    with patch("app.api.routes.load_rules", return_value=mock_rules), \
-         patch("app.api.routes.forward_pokemon") as mock_forward:
-             
+    with patch("app.api.routes.forward_pokemon") as mock_forward:
+        app.state.rules = mock_rules
         response = client.post(
             "/stream",
             content=test_pokemon_proto_bytes,
@@ -137,9 +136,8 @@ def test_stream_destination_timeout_returns_504(
     
     signature = generate_signature(test_pokemon_proto_bytes)
     
-    with patch("app.api.routes.load_rules", return_value=mock_rules), \
-         patch("app.api.routes.forward_pokemon", side_effect=DestinationTimeoutError("Timed out")):
-             
+    with patch("app.api.routes.forward_pokemon", side_effect=DestinationTimeoutError("Timed out")):
+        app.state.rules = mock_rules
         response = client.post(
             "/stream",
             content=test_pokemon_proto_bytes,
@@ -167,9 +165,8 @@ def test_stream_destination_error_returns_500(
     
     signature = generate_signature(test_pokemon_proto_bytes)
     
-    with patch("app.api.routes.load_rules", return_value=mock_rules), \
-         patch("app.api.routes.forward_pokemon", side_effect=RuntimeError("Some network error")):
-             
+    with patch("app.api.routes.forward_pokemon", side_effect=RuntimeError("Some network error")):
+        app.state.rules = mock_rules
         response = client.post(
             "/stream",
             content=test_pokemon_proto_bytes,
