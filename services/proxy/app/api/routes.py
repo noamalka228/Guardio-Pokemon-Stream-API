@@ -44,7 +44,7 @@ async def stream(request: Request):
         proto_pokemon = pokemon_pb2.Pokemon.FromString(raw_body)
         pokemon = Pokemon.from_proto(proto_pokemon)
 
-        rules = load_rules()
+        rules = request.app.state.rules
         matched_rules = evaluate_rules(pokemon, rules)
         if not matched_rules:
             raise NoMatchingRuleError(f"No matching rule found for pokemon: {pokemon.name}")
